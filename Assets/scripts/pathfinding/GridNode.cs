@@ -64,14 +64,17 @@ public class GridNode : MonoBehaviour{
     }
 
     public List<Node> path;
+    public Transform player;
 
     void OnDrawGizmos(){
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x,gridWorldSize.y,1));
         if (grid != null){
+            Node playerNode =NodeFromWorldPoint(player.position);
             foreach(Node n in grid){
                 Gizmos.color = n.walkable?Color.white:Color.red;
+                if (playerNode == n) { Gizmos.color = Color.cyan; }
                 if(path!= null)
-                    if(path.Contains(n))Gizmos.color=Color.black;
+                    if(path.Contains(n))Gizmos.color=Color.green;
                 
                 Gizmos.DrawCube(n.worldPosition,  Vector3.one * (nodeDiameter-.1f));
             }

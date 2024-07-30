@@ -16,6 +16,9 @@ public class Pathfinding : MonoBehaviour {
             FindPath(player.position, target.position);
         }
 	}
+	void GetTargetPosition(Transform enemy){
+		target=enemy;
+	}
 
 	void FindPath(Vector3 startPos, Vector3 targetPos) {
 		Node startNode = grid.NodeFromWorldPoint(startPos);

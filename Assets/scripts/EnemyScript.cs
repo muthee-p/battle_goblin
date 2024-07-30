@@ -4,21 +4,25 @@ using UnityEngine;
 public class EnemyScript : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI enemyNotxt;
-    //[SerializeField] public  Animation enemyAttackAnim; 
-    public PlayerScript playerScript;
-    public int enemyNo;
+    public  Animator enemyAnim; 
     
-   
-    float x,y;
+    
+    public int enemyNo;
+    Pathfinding pathfinding;
     void Start()
     {
-        x = transform.position.x;
-        y = transform.position.y;
         enemyNotxt.text= enemyNo.ToString();
+        enemyAnim=GetComponent<Animator>();
+        
     }
 
-    public void SummonPlayer(){
-        playerScript.MoveToEnemy(transform);
+    public void SetTarget(){
+       pathfinding= GameObject.FindGameObjectWithTag("algorithm").GetComponent<Pathfinding>();
+      
+
+        pathfinding.target = transform;
 
     }
+
+    
 }
