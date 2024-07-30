@@ -29,27 +29,42 @@ public class GridNode : MonoBehaviour{
             }
         }
     }
-    public List<Node> GetNeighbours(Node node){
+    public List<Node> GetNeighbours(Node node)
+    {
         List<Node> neighbours = new List<Node>();
 
-        for (int x = -1; x <=1; x++)
+        // Horizontal and vertical neighbors
+        int[] directions = { -1, 1 }; // Directions for left/right and down/up
+
+        foreach (int x in directions)
         {
-            for (int y = -1; y <=1; y++){
-                if(x==0 && y==0)
-                    continue;
-                
-                int checkX = node.gridX + x;
-                int checkY = node.gridY + y;
-                
-                if(checkX>=0 && checkX <gridSizeX && checkY >=0 && checkY < gridSizeY){
-                    neighbours.Add(grid[checkX, checkY]);
-                }
+            // Check horizontal neighbors (left and right)
+            int checkX = node.gridX + x;
+            int checkY = node.gridY;
+
+            if (checkX >= 0 && checkX < gridSizeX)
+            {
+                neighbours.Add(grid[checkX, checkY]);
             }
         }
+
+        foreach (int y in directions)
+        {
+            // Check vertical neighbors (down and up)
+            int checkX = node.gridX;
+            int checkY = node.gridY + y;
+
+            if (checkY >= 0 && checkY < gridSizeY)
+            {
+                neighbours.Add(grid[checkX, checkY]);
+            }
+        }
+
         return neighbours;
     }
 
-//get player Position
+
+    //get player Position
     public Node NodeFromWorldPoint(Vector3 worldPostion){
         float percentX = (worldPostion.x + gridWorldSize.x/2)/gridWorldSize.x;
         float percentY = (worldPostion.y + gridWorldSize.y/2)/gridWorldSize.y;
