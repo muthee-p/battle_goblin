@@ -63,6 +63,7 @@ public class PlayerScript : MonoBehaviour
             targetPos = path[targetIndex].worldPosition;
             MovePlayer();
         }
+        
     }
 
 
@@ -95,6 +96,8 @@ void MovePlayer()
         //enemyCollison
         if(collision.gameObject.CompareTag("enemy")){
             GameObject enemy = collision.gameObject;
+            if (enemy.GetComponent<EnemyScript>().flipPlayer == true) { GetComponent<SpriteRenderer>().flipX = true; }
+            if (enemy.GetComponent<EnemyScript>().flipPlayer == false) { GetComponent<SpriteRenderer>().flipX = false; }
             StartCoroutine(CombatSequence(enemy));
             fighting = false;
         }
