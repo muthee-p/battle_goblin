@@ -2,16 +2,30 @@ using UnityEngine;
 
 public class CoinScript : MonoBehaviour
 {
-    private  GameObject player;
-    public float moveSpeed;
+    private  GameObject parent;
+    public float minMoveSpeed, maxMoveSpeed;
+    Vector3 _velocity = Vector3.zero;
+    Vector3 targetPos;
+    public bool isFollowing = false;
 
     void Start(){
-        player=GameObject.FindGameObjectWithTag("Player");
+        parent = GameObject.FindGameObjectWithTag("parent");
+        targetPos = parent.transform.position;
+        //Debug.Log(parent.transform.position);
+        Invoke("StartFollowing", .8f);
     }
-    // void Update(){
-    //     Vector3 targetPos = player.transform.position;
-    //     float speed = moveSpeed * Time.deltaTime;
-    //     transform.position = Vector3.MoveTowards(transform.position, targetPos,speed); 
-       
-    // }
+
+    void StartFollowing()
+    {
+        isFollowing = true;
+    }
+    void Update()
+    {
+        if (isFollowing)
+        {
+            transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref _velocity, Time.deltaTime*Random.Range(minMoveSpeed, maxMoveSpeed));
+
+        }
+
+    }
 }

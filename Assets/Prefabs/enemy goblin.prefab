@@ -225,7 +225,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.12863618, y: 0.120839596}
+  m_Offset: {x: -0.08185935, y: 0.18710709}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -236,7 +236,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.3976029, y: 1.2728643}
+  m_Size: {x: 1.6470792, y: 1.5145435}
   m_EdgeRadius: 0
 --- !u!114 &7829991201018430429
 MonoBehaviour:
@@ -254,6 +254,7 @@ MonoBehaviour:
   destinationCell: {fileID: 0}
   enemyAnim: {fileID: 0}
   enemyNo: 3
+  flipPlayer: 0
 --- !u!95 &986467124918039783
 Animator:
   serializedVersion: 5
@@ -686,7 +687,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6159805643624146655}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1

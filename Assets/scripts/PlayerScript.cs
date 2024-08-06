@@ -1,13 +1,14 @@
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PlayerScript : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI playerNotxt;
     [SerializeField] private GameObject coin;
+    [SerializeField] private AudioSource slash, chestopen, woodBreak, coinSound;
     public float moveSpeed;
     public float moveTime;
     public GridNode grid;
@@ -72,10 +73,10 @@ void MovePlayer()
     speed = moveSpeed * Time.deltaTime;
         animator.SetFloat("speed", Mathf.Abs( speed));
     transform.position = Vector3.MoveTowards(transform.position, targetPos, speed);
-        //if (transform.position == targetPos)
-        //{
-            
-        //}
+        if (transform.position == targetPos)
+        {
+            animator.SetFloat("speed", 0);
+        }
 
         if (targetPos.x > transform.position.x)
         {
@@ -96,26 +97,24 @@ void MovePlayer()
         //enemyCollison
         if(collision.gameObject.CompareTag("enemy")){
             GameObject enemy = collision.gameObject;
+            slash.Play();
+            if(enemy.name=="shroom" || enemy.name == "boss") { transform.Find("Shadow").gameObject.SetActive(false); }
             if (enemy.GetComponent<EnemyScript>().flipPlayer == true) { GetComponent<SpriteRenderer>().flipX = true; }
             if (enemy.GetComponent<EnemyScript>().flipPlayer == false) { GetComponent<SpriteRenderer>().flipX = false; }
             StartCoroutine(CombatSequence(enemy));
             fighting = false;
         }
 
-        //coin collision
-         //if(collision.gameObject.CompareTag("coin")){
-         //   GameObject coin = collision.gameObject;
-         //   Destroy(coin);
-         //}
-
         //objectCollision
         if(collision.gameObject.CompareTag("object")){
 
             animator.SetTrigger("attack");
+            slash.PlayOneShot(slash.clip);
             GameObject obj= collision.gameObject;
             int objNo = obj.GetComponent<EnemyScript>().enemyNo;
             if (obj.name == "chest")
             {
+                chestopen.Play();
                 obj.transform.Find("Canvas").gameObject.SetActive(false);
                 playerNo *=objNo;
                 obj.GetComponent<SpriteRenderer>().sprite=openChest;
@@ -123,14 +122,13 @@ void MovePlayer()
                
             else if(obj.name == "barrel")
             {
+                woodBreak.Play();
                 playerNo += objNo;            
-                Destroy(obj, 1f);
+                Destroy(obj, .5f);
             }
             animator.SetTrigger("objOpen");
             playerNotxt.text=playerNo.ToString();
             fighting = false;
-            //SizeIncrease();
-
 
         }
     }
@@ -144,22 +142,28 @@ void MovePlayer()
         int enemyNo = enemy.GetComponent<EnemyScript>().enemyNo;
 
         animator.SetTrigger("attack");
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
         
         enemyAnimator.SetTrigger("takeHit");
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(.2f);
 
         enemyAnimator.SetTrigger("attack");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(.5f);
 
         // Character A blocks0
         animator.SetTrigger("block");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(.5f);
 
         if (playerNo > enemyNo)
         {
-
-            GameObject coinDropped = Instantiate(coin, enemyPos + new Vector3(0f, 1f, 0), quaternion.identity);
+            int coinCount = 0;
+            if (enemyNo < 10) coinCount = 1;
+            else if (enemyNo > 10) coinCount = Mathf.Abs(enemyNo / 10);
+            else if (enemyNo > 100) coinCount = Mathf.Abs(enemyNo / 100)+4;
+            for (int i = 0; i < coinCount; i++){
+                GameObject coinDropped = Instantiate(coin, enemyPos + new Vector3(Random.Range(.2f,1f), Random.Range(.2f, 1f), 0), Quaternion.identity);
+                coinSound.Play();
+            }
     
             enemyAnimator.SetTrigger("die");
             animator.SetTrigger("victory");
@@ -167,7 +171,10 @@ void MovePlayer()
             animator.SetFloat("speed", 0);
             playerNo += enemyNo;
             playerNotxt.text = playerNo.ToString();
-            Destroy(coinDropped, 3f);
+            if(enemy.name == "boss")
+            {
+                StartCoroutine(GameOver());
+            }
 
         }
         else
@@ -175,10 +182,32 @@ void MovePlayer()
             animator.SetTrigger("die");
             enemyAnimator.SetTrigger("victory");
             Invoke("HidePlayer", 1.5f);
+                StartCoroutine(GameOver());
         }
+        slash.Stop();   
     }
 
+    [SerializeField] CanvasGroup blackScreen;
+    private IEnumerator GameOver()
+    {
+        blackScreen.gameObject.SetActive(true);
+        float fadeDuration = 2;
+        float timeElapsed = 0f;
+        while (timeElapsed < fadeDuration)
+        {
+            timeElapsed += Time.deltaTime;
+            blackScreen.alpha = Mathf.Clamp01(timeElapsed / fadeDuration);
+            yield return null;
+        }
+        blackScreen.alpha = 1;
+        SceneManager.LoadScene(2);
+       yield return null;
+    }
         void HidePlayer() { gameObject.SetActive(false);}
-    
-    
+
+    public void ReStart()
+    {
+        SceneManager.LoadScene(1);
+    }
+
 }

@@ -7,6 +7,8 @@ TagManager:
   - object
   - algorithm
   - enemy
+  - coin
+  - parent
   layers:
   - Default
   - TransparentFX
