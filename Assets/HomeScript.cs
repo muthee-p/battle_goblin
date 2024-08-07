@@ -50,23 +50,23 @@ public class HomeScript : MonoBehaviour
         int enemyNo = enemy.GetComponent<EnemyScript>().enemyNo;
 
         animator.SetTrigger("attack");
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
 
         enemyAnimator.SetTrigger("takeHit");
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(.2f);
 
         enemyAnimator.SetTrigger("attack");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(.4f);
 
         // Character A blocks0
         animator.SetTrigger("block");
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(.4f);
 
         animator.SetTrigger("attack");
-        yield return new WaitForSeconds(1.2f);
+        yield return new WaitForSeconds(.6f);
 
         enemyAnimator.SetTrigger("die");
-        yield return new WaitForSeconds(1.25f);
+        yield return new WaitForSeconds(.6f);
         animator.SetTrigger("victory");
         slash.Stop();
 

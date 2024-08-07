@@ -98,7 +98,7 @@ void MovePlayer()
         if(collision.gameObject.CompareTag("enemy")){
             GameObject enemy = collision.gameObject;
             slash.Play();
-            if(enemy.name=="shroom" || enemy.name == "boss") { transform.Find("Shadow").gameObject.SetActive(false); }
+            if(enemy.name=="shroom" || enemy.name == "boss") { enemy.transform.Find("shadow").gameObject.SetActive(false); }
             if (enemy.GetComponent<EnemyScript>().flipPlayer == true) { GetComponent<SpriteRenderer>().flipX = true; }
             if (enemy.GetComponent<EnemyScript>().flipPlayer == false) { GetComponent<SpriteRenderer>().flipX = false; }
             StartCoroutine(CombatSequence(enemy));
