@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -9,6 +10,9 @@ public class EnemyScript : MonoBehaviour
     public  Animator enemyAnim; 
     public int enemyNo;
     public bool flipPlayer;
+    public float scaleFactor = 1.2f;
+    public float animationDuration = .2f;
+    AudioSource clickSound;
     bool fighting;
 
     Pathfinding pathfinding;
@@ -19,6 +23,7 @@ public class EnemyScript : MonoBehaviour
        
         enemyNotxt.text= enemyNo.ToString();
         enemyAnim=GetComponent<Animator>();
+        clickSound=GetComponent<AudioSource>();
         if (gameObject.name == "chest")
         {
             enemyNotxt.text  = "x" + enemyNo;
@@ -27,7 +32,7 @@ public class EnemyScript : MonoBehaviour
     }
 
     public void SetTarget(){ 
-
+        clickSound.Play();
         playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerScript>();
         fighting = playerScript.fighting;
         //if (!fighting)
@@ -38,10 +43,34 @@ public class EnemyScript : MonoBehaviour
             }
             pathfinding= GameObject.FindGameObjectWithTag("algorithm").GetComponent<Pathfinding>();
             pathfinding.target = destinationCell.transform;
+        StartCoroutine(AnimateScale());
         //}
        
 
     }
+    private IEnumerator AnimateScale()
+    {
+        Vector3 startScale = transform.localScale;
+        Vector3 scale = startScale * scaleFactor;
+        
+        float elaspedTime = 0f;
+        while (elaspedTime < animationDuration)
+        {
+            transform.localScale = Vector3.Lerp(startScale, scale, elaspedTime / animationDuration);
+            elaspedTime += Time.deltaTime;
+            yield return null;
+        }
+        transform.localScale = scale;
 
-    
+        while (elaspedTime < animationDuration)
+        {
+            transform.localScale = Vector3.Lerp(startScale, startScale, elaspedTime / animationDuration);
+            elaspedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.localScale = startScale;
+    }
+
+
 }

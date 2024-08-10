@@ -23,7 +23,7 @@ public class PlayerScript : MonoBehaviour
 
     Vector3 targetPos;
     float speed;
-    
+    int visibleEnemies;
 
     void Start()
     {    
@@ -64,8 +64,8 @@ public class PlayerScript : MonoBehaviour
             targetPos = path[targetIndex].worldPosition;
             MovePlayer();
         }
-        
-    }
+
+        }
 
 
 void MovePlayer()
@@ -89,10 +89,11 @@ void MovePlayer()
 
     }
 
-    [SerializeField] Sprite openChest;
+    [SerializeField] Sprite openChest, brokenBarrel;
 
     void OnCollisionEnter2D(Collision2D collision){
-        fighting = true;
+        //visibleEnemies = 0;
+        
         animator.SetFloat("speed", 0);
         //enemyCollison
         if(collision.gameObject.CompareTag("enemy")){
@@ -112,10 +113,10 @@ void MovePlayer()
             slash.PlayOneShot(slash.clip);
             GameObject obj= collision.gameObject;
             int objNo = obj.GetComponent<EnemyScript>().enemyNo;
+            obj.transform.Find("Canvas").gameObject.SetActive(false);
             if (obj.name == "chest")
             {
                 chestopen.Play();
-                obj.transform.Find("Canvas").gameObject.SetActive(false);
                 playerNo *=objNo;
                 obj.GetComponent<SpriteRenderer>().sprite=openChest;
             }
@@ -123,12 +124,14 @@ void MovePlayer()
             else if(obj.name == "barrel")
             {
                 woodBreak.Play();
-                playerNo += objNo;            
-                Destroy(obj, .5f);
+                playerNo += objNo;
+                obj.GetComponent<SpriteRenderer>().sprite = brokenBarrel;
+                obj.layer = 6;
             }
             animator.SetTrigger("objOpen");
             playerNotxt.text=playerNo.ToString();
             fighting = false;
+            //CheckEnemyNo();
 
         }
     }
@@ -161,7 +164,7 @@ void MovePlayer()
             else if (enemyNo > 10) coinCount = Mathf.Abs(enemyNo / 10);
             else if (enemyNo > 100) coinCount = Mathf.Abs(enemyNo / 100)+4;
             for (int i = 0; i < coinCount; i++){
-                GameObject coinDropped = Instantiate(coin, enemyPos + new Vector3(Random.Range(.2f,1f), Random.Range(.2f, 1f), 0), Quaternion.identity);
+                GameObject coinDropped = Instantiate(coin, enemyPos + new Vector3(Random.Range(.2f,2f), Random.Range(.2f, 2f), 0), Quaternion.identity);
                 coinSound.Play();
             }
     
@@ -171,9 +174,10 @@ void MovePlayer()
             animator.SetFloat("speed", 0);
             playerNo += enemyNo;
             playerNotxt.text = playerNo.ToString();
-            if(enemy.name == "boss")
+            //CheckEnemyNo();
+            if (enemy.name == "boss")
             {
-                StartCoroutine(GameOver());
+                StartCoroutine(GameOver(3));
             }
 
         }
@@ -182,13 +186,13 @@ void MovePlayer()
             animator.SetTrigger("die");
             enemyAnimator.SetTrigger("victory");
             Invoke("HidePlayer", 1.5f);
-                StartCoroutine(GameOver());
+            StartCoroutine(GameOver(2));
         }
         slash.Stop();   
     }
 
     [SerializeField] CanvasGroup blackScreen;
-    private IEnumerator GameOver()
+    private IEnumerator GameOver(int level)
     {
         blackScreen.gameObject.SetActive(true);
         float fadeDuration = 2;
@@ -200,10 +204,52 @@ void MovePlayer()
             yield return null;
         }
         blackScreen.alpha = 1;
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene(level);
        yield return null;
     }
-        void HidePlayer() { gameObject.SetActive(false);}
+
+    public Camera camera1;
+    void CheckEnemyNo()
+    {
+        
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("enemy");
+        GameObject[] objects = GameObject.FindGameObjectsWithTag("object");
+        foreach (GameObject enemy in enemies)
+        {
+            Renderer renderer = enemy.GetComponent<Renderer>();
+            if (renderer != null && IsVisibleFrom(enemy, camera1))
+            {
+                visibleEnemies++;
+            }
+        }
+        foreach (var item in objects)
+        {
+            Renderer renderer = item.GetComponent<Renderer>();
+            if (renderer != null && IsVisibleFrom(item,camera1))
+            {
+                visibleEnemies++;
+            }
+        }
+        if (visibleEnemies == 0)
+        {
+            StartCoroutine(GameOver(2));
+            Invoke("HidePlayer", 1.5f);
+        }
+        Debug.Log(visibleEnemies);
+    }
+
+    bool IsVisibleFrom(GameObject enemy, Camera camera)
+    {
+        Renderer ren = enemy.GetComponent<Renderer>();
+        Vector3 viewportpos = camera.WorldToViewportPoint(ren.bounds.center);
+        if (viewportpos.x >= 0 &&  viewportpos.x <= 1 && viewportpos.y >=0 & viewportpos.y <= 0 && viewportpos.z > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+     void HidePlayer() { gameObject.GetComponent<SpriteRenderer>().enabled = false; }
 
     public void ReStart()
     {
